@@ -24,7 +24,8 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas openpyxl PyJWT requests
+          pip install cryptography typing_extensions
+          pip install "PyJWT[crypto]" requests pandas openpyxl
 
       - name: Create required directories
         run: |
