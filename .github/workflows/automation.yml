@@ -4,7 +4,6 @@ on:
   schedule:
     # Run daily at 9:00 AM IST (3:30 AM UTC)
     - cron: '30 3 * * *'
-
   # Allow manual trigger
   workflow_dispatch:
 
@@ -12,9 +11,16 @@ jobs:
   phone-capture-report:
     runs-on: ubuntu-latest
 
+    # IMPORTANT: Give the workflow write permission to push the rolling CSV back
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Fetch full history so git push works cleanly
+          fetch-depth: 1
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,13 +38,32 @@ jobs:
           mkdir -p Data
           mkdir -p output
 
-      - name: Run Phone Capture Rate Tracker
+      - name: Run Sales Scraper (Rista.py)
         run: |
-          echo "Starting phone capture rate analysis..."
+          echo "Starting sales data fetch..."
           python Rista.py
-          echo "Phone tracker completed"
+          echo "Sales fetch completed"
 
-      - name: Run Processing
+      # ── Commit the updated rolling CSV back to the repo ──────────────────
+      # This is the key step that was missing. Without it, the rolling CSV
+      # is discarded at the end of each run and the next run starts fresh.
+      - name: Commit updated rolling CSV
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Only commit if the file actually changed
+          if git diff --quiet Data/sales_rolling.csv 2>/dev/null && \
+             git ls-files --error-unmatch Data/sales_rolling.csv 2>/dev/null; then
+            echo "No changes to sales_rolling.csv — skipping commit"
+          else
+            git add Data/sales_rolling.csv
+            git commit -m "chore: update sales_rolling.csv [skip ci]"
+            git push
+            echo "Rolling CSV committed and pushed"
+          fi
+
+      - name: Run Processing (Processing.py)
         run: |
           echo "Starting processing..."
           python Processing.py
@@ -63,8 +88,78 @@ jobs:
             output/*_log.txt
           retention-days: 7
 
-      - name: Cleanup old files
+      - name: Cleanup old output files
         run: |
-          # Keep only last 7 days of output files
           find output/ -name "Phone No Record - *.xlsx" -type f -mtime +7 -delete
           find output/ -name "*_log.txt" -type f -mtime +7 -delete
+          
+  # name: Daily Phone Capture Rate Tracker & Email Report
+
+# on:
+#   schedule:
+#     # Run daily at 9:00 AM IST (3:30 AM UTC)
+#     - cron: '30 3 * * *'
+
+#   # Allow manual trigger
+#   workflow_dispatch:
+
+# jobs:
+#   phone-capture-report:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Set up Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: '3.10'
+
+#       - name: Install Python dependencies
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install cryptography typing_extensions
+#           pip install "PyJWT[crypto]" requests pandas openpyxl
+
+#       - name: Create required directories
+#         run: |
+#           mkdir -p Data
+#           mkdir -p output
+
+#       - name: Run Phone Capture Rate Tracker
+#         run: |
+#           echo "Starting phone capture rate analysis..."
+#           python Rista.py
+#           echo "Phone tracker completed"
+
+#       - name: Run Processing
+#         run: |
+#           echo "Starting processing..."
+#           python Processing.py
+#           echo "Processing completed"
+
+#       - name: Send Email Report
+#         env:
+#           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+#           SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+#         run: |
+#           echo "Sending email report..."
+#           python Test_mail.py
+#           echo "Email sent successfully"
+
+#       - name: Upload artifacts
+#         if: always()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: phone-capture-reports
+#           path: |
+#             output/*.xlsx
+#             output/*_log.txt
+#           retention-days: 7
+
+#       - name: Cleanup old files
+#         run: |
+#           # Keep only last 7 days of output files
+#           find output/ -name "Phone No Record - *.xlsx" -type f -mtime +7 -delete
+#           find output/ -name "*_log.txt" -type f -mtime +7 -delete
