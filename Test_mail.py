@@ -1,4 +1,5 @@
 
+
 """
 
 python send_report.py
@@ -30,7 +31,7 @@ from openpyxl.utils import column_index_from_string
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-OUTPUT_DIR      = r"C:/Users/jeryy/OneDrive - BLISS CHOCOLATES INDIA PRIVATE LIMITED/Desktop/Documents/Phone No/output"
+OUTPUT_DIR      = r"C:/Users/jeryy/OneDrive - BLISS CHOCOLATES INDIA PRIVATE LIMITED/Documents/Phone No/output"
 
 SMTP_HOST       = "smtp.office365.com"
 
@@ -42,11 +43,12 @@ SENDER_PASSWORD = "vnnyxwnxypqhxdqj"
 
 TO_RECIPIENTS   = [   
     
-    #  "muskan.sajwan@smoorchocolates.com",
+    # "muskan.sajwan@smoorchocolates.com",
     # "trisha.krishna@smoorchocolates.com",
     # "kanchan.achpal@smoorchocolates.com",		
-
+    # "nitesh.kumar@smoorchocolates.com",
     # "vedant.gote@smoorchocolates.com",
+    
     # "adeshshetty@smoorchocolates.com",
     # "mehtaj.khan@smoorchocolates.com",
     # "ranbir.singh@smoorchocolates.com",
@@ -59,7 +61,18 @@ TO_RECIPIENTS   = [
     # "deependra.rao@smoorchocolates.com",
     "john.jerry@smoorchocolates.com",
     # "siddhartha.siva@smoorchocolates.com",
-    # "rahul.kumar@smoorchocolates.com" 
+    # "rahul.kumar@smoorchocolates.com",
+
+    # "shailesh.moolya@smoorchocolates.com",
+
+    # "smoor.fsm@smoorchocolates.com",
+    # "smoor.indiranagar@smoorchocolates.com",
+    # "smoorkoregaonpark@smoorchocolates.com",
+    # "smoorpowai@smoorchocolates.com",
+    # "smoorsadhshivanagar@smoorchocolates.com",
+    # "sarjapur.ck@smoorchocolates.com",
+    # "kadugodi.ck@smoorchocolates.com"
+
     ]
 
 CC_RECIPIENTS   = []
@@ -676,7 +689,7 @@ if __name__ == "__main__":
     <div style="font-size:10px; color:#2C5282; background:#EEF2F9;
          border-left:3px solid {ROYAL}; padding:7px 12px; margin-bottom:10px;
          border-radius:0 3px 3px 0; font-weight:500;">
-      Note: Outlets are sorted basis number of offline orders (high to low) &nbsp;|&nbsp;
+      Note: Outlets are sorted basis number of offline orders (high to low) &nbsp;
     </div>
     {desktop_table}
   </div>
